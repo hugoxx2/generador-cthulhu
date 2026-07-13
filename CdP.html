@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Investigadores — La Llamada de Cthulhu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Courier+Prime:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --parchment: #efe6d2;
+      --parchment-dark: #e2d5b3;
+      --card: #f6efdd;
+      --ink: #221f1a;
+      --ink-soft: #5a5142;
+      --teal: #1f3b36;
+      --teal-dark: #152925;
+      --rust: #8b3a2b;
+      --gold: #a98a4b;
+      --line: #c9b98d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background:
+        radial-gradient(ellipse at top left, rgba(31, 59, 54, 0.06), transparent 60%),
+        var(--parchment);
+      background-image:
+        radial-gradient(rgba(90, 81, 66, 0.10) 1px, transparent 1px),
+        var(--parchment);
+      background-size: 3px 3px, auto;
+      color: var(--ink);
+      font-family: 'Courier Prime', monospace;
+      min-height: 100vh;
+      padding: 18px 14px 60px;
+    }
+
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 22px 10px 18px;
+      margin-bottom: 18px;
+      border-bottom: 3px double var(--gold);
+    }
+
+    header .eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--rust);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: clamp(26px, 7vw, 38px);
+      color: var(--teal-dark);
+      margin: 0;
+      letter-spacing: 1px;
+    }
+
+    header p {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 6px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 0 var(--line), 0 6px 14px rgba(34, 31, 26, 0.08);
+    }
+
+    .card h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin: 0 0 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type=text],
+    select {
+      width: 100%;
+      font-family: 'Courier Prime', monospace;
+      font-size: 15px;
+      padding: 10px 10px;
+      margin-bottom: 14px;
+      background: var(--parchment-dark);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: var(--ink);
+    }
+
+    select {
+      appearance: none;
+    }
+
+    .era-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .era-toggle button {
+      flex: 1;
+      padding: 9px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      background: var(--parchment-dark);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .era-toggle button.active {
+      background: var(--teal);
+      color: var(--parchment);
+      border-color: var(--teal-dark);
+    }
+
+    .roll-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px;
+      background: var(--rust);
+      color: #f6efdd;
+      border: none;
+      border-radius: 3px;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #5f2419, 0 8px 16px rgba(0, 0, 0, 0.25);
+      transition: transform .08s ease;
+    }
+
+    .roll-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #5f2419;
+    }
+
+    .roll-btn svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    #resultado {
+      display: none;
+    }
+
+    #resultado.show {
+      display: block;
+      animation: reveal .4s ease;
+    }
+
+    @keyframes reveal {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .name-plate {
+      text-align: center;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: var(--teal-dark);
+      color: var(--parchment);
+      border-radius: 2px;
+    }
+
+    .name-plate .n {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .name-plate .o {
+      font-size: 12px;
+      color: var(--gold);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      text-align: center;
+      background: var(--parchment-dark);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 10px 4px;
+    }
+
+    .stat .k {
+      font-size: 10px;
+      color: var(--ink-soft);
+      letter-spacing: 1px;
+    }
+
+    .stat .v {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--teal-dark);
+    }
+
+    .derived-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px dashed var(--line);
+      font-size: 13.5px;
+    }
+
+    .derived-row:last-child {
+      border-bottom: none;
+    }
+
+    .derived-row .v {
+      font-weight: 700;
+      color: var(--rust);
+    }
+
+    ul.skills {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    ul.skills li {
+      padding: 6px 0 6px 18px;
+      position: relative;
+      font-size: 13.5px;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    ul.skills li:last-child {
+      border-bottom: none;
+    }
+
+    ul.skills li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-size: 11px;
+    }
+
+    .points-line {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 13.5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .points-line .v {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      color: var(--teal-dark);
+      font-size: 16px;
+    }
+
+    .credit-hero {
+      text-align: center;
+      padding: 14px;
+      background: var(--parchment-dark);
+      border: 1px solid var(--gold);
+      border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    .credit-hero .clase {
+      font-family: 'Cinzel', serif;
+      font-size: 19px;
+      color: var(--rust);
+      font-weight: 700;
+    }
+
+    .credit-hero .cr {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 3px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--ink-soft);
+      margin-top: 30px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <header>
+      <div class="eyebrow">Guardián de los Arcanos</div>
+      <h1>Ficha de Investigador</h1>
+      <p>Generador rápido — La Llamada de Cthulhu, 7ª edición</p>
+    </header>
+
+    <div class="card">
+      <h2>Datos del investigador</h2>
+      <label for="nombre">Nombre</label>
+      <input type="text" id="nombre" placeholder="Investigador">
+
+      <label for="ocupacion">Ocupación</label>
+      <select id="ocupacion"></select>
+
+      <label>Época</label>
+      <div class="era-toggle">
+        <button type="button" id="btn-años20" class="active">Años 20</button>
+        <button type="button" id="btn-actual">Actual</button>
+      </div>
+
+      <button class="roll-btn" id="btn-generar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8" cy="8" r="1.2" fill="currentColor" />
+          <circle cx="16" cy="8" r="1.2" fill="currentColor" />
+          <circle cx="8" cy="16" r="1.2" fill="currentColor" />
+          <circle cx="16" cy="16" r="1.2" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+        </svg>
+        Tirar dados
+      </button>
+    </div>
+
+    <div id="resultado">
+
+      <div class="name-plate">
+        <div class="n" id="r-nombre"></div>
+        <div class="o" id="r-ocupacion"></div>
+      </div>
+
+      <div class="card">
+        <h2>Características</h2>
+        <div class="stat-grid" id="r-stats"></div>
+      </div>
+
+      <div class="card">
+        <h2>Atributos derivados</h2>
+        <div id="r-derivados"></div>
+      </div>
+
+      <div class="card">
+        <h2>Habilidades de ocupación (máx. 8)</h2>
+        <ul class="skills" id="r-hab-ocup"></ul>
+        <div class="points-line">
+          <span id="r-formula-ocup"></span>
+          <span class="v" id="r-puntos-ocup"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Interés personal</h2>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px;">Puntos libres — repártelos en las habilidades
+          que quieras, sin límite de cuántas.</p>
+        <div class="points-line">
+          <span>Puntos (INT×2)</span>
+          <span class="v" id="r-puntos-interes"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Crédito y dinero</h2>
+        <div class="credit-hero">
+          <div class="clase" id="r-clase"></div>
+          <div class="cr" id="r-credito"></div>
+        </div>
+        <div class="derived-row"><span>Dinero</span><span class="v" id="r-dinero"></span></div>
+        <div class="derived-row"><span>Bienes</span><span class="v" id="r-bienes"></span></div>
+        <div class="derived-row"><span>Nivel de gasto</span><span class="v" id="r-gasto"></span></div>
+      </div>
+
+    </div>
+
+    <footer>✦ Ph'nglui mglw'nafh — que la Suerte te acompañe ✦</footer>
+  </div>
+
+  <script>
+    // ============================================================
+    // LOGICA (equivalente al script de Python)
+    // ============================================================
+
+    function d6() { return 1 + Math.floor(Math.random() * 6); }
+    function tirar3d6() { return d6() + d6() + d6(); }
+    function tirar2d6() { return d6() + d6(); }
+
+    function generarCaracteristicas() {
+      return {
+        FUE: tirar3d6() * 5, CON: tirar3d6() * 5, DES: tirar3d6() * 5,
+        APA: tirar3d6() * 5, POD: tirar3d6() * 5, SUERTE: tirar3d6() * 5,
+        TAM: (tirar2d6() + 6) * 5, INT: (tirar2d6() + 6) * 5, EDU: (tirar3d6() + 3) * 5,
+      };
+    }
+
+    function calcularBonifDano(fue, tam) {
+      const suma = fue + tam;
+      const tabla = [[64, "-2"], [84, "-1"], [124, "0"], [164, "+1D4"], [204, "+1D6"],
+      [284, "+2D6"], [364, "+3D6"], [444, "+4D6"], [524, "+5D6"]];
+      for (const [limite, bono] of tabla) { if (suma <= limite) return bono; }
+      const extra = Math.floor((suma - 524) / 80) + 1;
+      return `+${5 + extra}D6`;
+    }
+
+    function generarDerivados(c) {
+      return {
+        "Puntos de Vida": Math.floor((c.CON + c.TAM) / 10),
+        "Puntos de Magia": Math.floor(c.POD / 5),
+        "Cordura inicial": c.POD,
+        "Bonificación de Daño": calcularBonifDano(c.FUE, c.TAM),
+      };
+    }
+
+    function max2(c, a, b) { return Math.max(c[a], c[b]) * 2; }
+
+    const OCUPACIONES = {
+      "Abogado": { h: ["Buscar libros", "Contabilidad", "Derecho", "Psicología", "Habilidad interpersonal", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre"], cr: [30, 80], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Agente de policía": { h: ["Armas de fuego", "Combatir (Pelea)", "Derecho", "Descubrir", "Primeros auxilios", "Psicología", "Habilidad interpersonal", "Conducir automóvil o Equitación"], cr: [9, 30], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Anticuario": { h: ["Arte/Artesanía", "Descubrir", "Historia", "Otras lenguas", "Tasación", "Habilidad libre"], cr: [30, 70], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Artista": { h: ["Arte/Artesanía", "Descubrir", "Historia o Naturaleza", "Otras lenguas", "Psicología", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre"], cr: [9, 50], f: "EDU×2 + max(POD,DES)×2", p: c => c.EDU * 2 + max2(c, "POD", "DES") },
+      "Atleta profesional": { h: ["Combatir (Pelea)", "Equitación", "Lanzar", "Nadar", "Saltar", "Trepar", "Habilidad interpersonal", "Habilidad libre"], cr: [9, 70], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Bibliotecario": { h: ["Buscar libros", "Contabilidad", "Lengua propia", "Otras lenguas", "Especialidad libre", "Especialidad libre", "Especialidad libre", "Especialidad libre"], cr: [9, 35], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Clérigo": { h: ["Buscar libros", "Contabilidad", "Escuchar", "Historia", "Otras lenguas", "Psicología", "Habilidad interpersonal", "Habilidad libre"], cr: [9, 60], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Criminal": { h: ["Descubrir", "Psicología", "Sigilo", "Habilidad interpersonal", "Armas de fuego/Cerrajería/Combatir/Disfrazarse/Juego de manos/Mecánica/Tasación (elige 4)"], cr: [5, 65], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Diletante": { h: ["Armas de fuego", "Arte/Artesanía", "Equitación", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre", "Habilidad libre"], cr: [50, 99], f: "EDU×2 + APA×2", p: c => c.EDU * 2 + c.APA * 2 },
+      "Escritor": { h: ["Arte (Literatura)", "Buscar libros", "Historia", "Lengua propia", "Naturaleza o Ciencias ocultas", "Habilidad libre"], cr: [9, 30], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Fanático": { h: ["Historia", "Psicología", "Sigilo", "Habilidad interpersonal", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre", "Habilidad libre"], cr: [0, 30], f: "EDU×2 + max(APA,POD)×2", p: c => c.EDU * 2 + max2(c, "APA", "POD") },
+      "Granjero": { h: ["Arte/Artesanía (Agricultura)", "Conducir automóvil", "Mecánica", "Naturaleza", "Seguir rastros", "Habilidad interpersonal", "Habilidad libre"], cr: [9, 30], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Ingeniero": { h: ["Arte/Artesanía (Dibujo técnico)", "Buscar libros", "Ciencia (Ingeniería)", "Ciencia (Física)", "Conducir maquinaria", "Electricidad", "Mecánica", "Habilidad libre"], cr: [30, 60], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Inspector de policía": { h: ["Armas de fuego", "Arte/Artesanía o Disfrazarse", "Derecho", "Descubrir", "Escuchar", "Psicología", "Habilidad interpersonal", "Habilidad libre"], cr: [20, 50], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Intérprete": { h: ["Arte/Artesanía (Interpretación)", "Disfrazarse", "Escuchar", "Psicología", "Habilidad interpersonal", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre"], cr: [9, 70], f: "EDU×2 + APA×2", p: c => c.EDU * 2 + c.APA * 2 },
+      "Investigador privado": { h: ["Arte/Artesanía (Fotografía)", "Buscar libros", "Derecho", "Descubrir", "Disfrazarse", "Psicología", "Habilidad interpersonal", "Habilidad libre"], cr: [9, 30], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Médico": { h: ["Ciencia (Biología)", "Ciencia (Farmacología)", "Medicina", "Otras lenguas (latín)", "Primeros auxilios", "Psicología", "Especialidad libre", "Especialidad libre"], cr: [30, 80], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Miembro de una tribu": { h: ["Ciencias ocultas", "Combatir o Lanzar", "Descubrir", "Escuchar", "Naturaleza", "Supervivencia", "Trepar"], cr: [0, 15], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Misionero": { h: ["Arte/Artesanía", "Medicina", "Mecánica", "Naturaleza", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre"], cr: [0, 30], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Músico": { h: ["Arte/Artesanía (Instrumento)", "Escuchar", "Psicología", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre", "Habilidad libre", "Habilidad libre"], cr: [9, 30], f: "EDU×2 + max(DES,POD)×2", p: c => c.EDU * 2 + max2(c, "DES", "POD") },
+      "Oficial militar": { h: ["Armas de fuego", "Contabilidad", "Psicología", "Orientarse", "Supervivencia", "Habilidad interpersonal", "Habilidad interpersonal", "Habilidad libre"], cr: [20, 70], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Parapsicólogo": { h: ["Antropología", "Arte/Artesanía (Fotografía)", "Buscar libros", "Ciencias ocultas", "Historia", "Otras lenguas", "Psicología", "Habilidad libre"], cr: [9, 30], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Periodista": { h: ["Arte/Artesanía (Fotografía)", "Buscar libros", "Historia", "Lengua propia", "Psicología", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre"], cr: [9, 30], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Piloto": { h: ["Ciencia (Astronomía)", "Conducir maquinaria", "Electricidad", "Mecánica", "Orientarse", "Pilotar (aeronave)", "Habilidad libre", "Habilidad libre"], cr: [20, 70], f: "EDU×2 + DES×2", p: c => c.EDU * 2 + c.DES * 2 },
+      "Pirata informático": { h: ["Buscar libros", "Descubrir", "Electricidad", "Electrónica", "Informática", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre"], cr: [10, 70], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Profesor de universidad": { h: ["Buscar libros", "Lengua propia", "Otras lenguas", "Psicología", "Especialidad libre", "Especialidad libre", "Especialidad libre", "Especialidad libre"], cr: [20, 70], f: "EDU ×4", p: c => c.EDU * 4 },
+      "Soldado": { h: ["Armas de fuego", "Combatir", "Esquivar", "Sigilo", "Supervivencia", "Trepar o Nadar", "Habilidad libre", "Habilidad libre"], cr: [9, 30], f: "EDU×2 + max(DES,FUE)×2", p: c => c.EDU * 2 + max2(c, "DES", "FUE") },
+      "Vagabundo": { h: ["Escuchar", "Orientarse", "Saltar", "Sigilo", "Trepar", "Habilidad interpersonal", "Habilidad libre", "Habilidad libre"], cr: [0, 5], f: "EDU×2 + max(APA,DES,FUE)×2", p: c => c.EDU * 2 + Math.max(c.APA, c.DES, c.FUE) * 2 },
+    };
+
+    const TABLA_CREDITO = {
+      "años20": [
+        [0, 0, "Indigente", 0, 0, 0.5],
+        [1, 9, "Pobre", 1, 10, 2],
+        [10, 49, "Clase media", 2, 50, 10],
+        [50, 89, "Adinerado", 5, 500, 50],
+        [90, 98, "Rico", 20, 2000, 250],
+        [99, 99, "Inmensamente rico", null, null, 5000],
+      ],
+      "actual": [
+        [0, 0, "Indigente", 0, 0, 10],
+        [1, 9, "Pobre", 20, 200, 40],
+        [10, 49, "Clase media", 40, 1000, 200],
+        [50, 89, "Adinerado", 100, 10000, 1000],
+        [90, 98, "Rico", 400, 40000, 5000],
+        [99, 99, "Inmensamente rico", null, null, 100000],
+      ],
+    };
+
+    function fmt(n) { return n.toLocaleString('es-CL'); }
+
+    function calcularDinero(credito, era) {
+      for (const [crMin, crMax, clase, multD, multB, gasto] of TABLA_CREDITO[era]) {
+        if (credito >= crMin && credito <= crMax) {
+          let dinero, bienes;
+          if (clase === "Indigente") {
+            dinero = era === "años20" ? 0.5 : 10;
+            bienes = "Ninguna";
+          } else if (clase === "Inmensamente rico") {
+            dinero = era === "años20" ? 50000 : 1000000;
+            bienes = era === "años20" ? "5.000.000$ o más" : "100.000.000$ o más";
+          } else {
+            dinero = credito * multD;
+            bienes = fmt(credito * multB) + " $";
+          }
+          return { clase, dinero, bienes, gasto };
+        }
+      }
+    }
+
+    // ============================================================
+    // UI
+    // ============================================================
+
+    const selectOcup = document.getElementById('ocupacion');
+    Object.keys(OCUPACIONES).forEach(nombre => {
+      const opt = document.createElement('option');
+      opt.value = nombre; opt.textContent = nombre;
+      selectOcup.appendChild(opt);
+    });
+    // opción "al azar" al principio
+    const optAzar = document.createElement('option');
+    optAzar.value = ""; optAzar.textContent = "🎲 Al azar";
+    selectOcup.insertBefore(optAzar, selectOcup.firstChild);
+    selectOcup.value = "";
+
+    let era = "años20";
+    document.getElementById('btn-años20').onclick = () => {
+      era = "años20";
+      document.getElementById('btn-años20').classList.add('active');
+      document.getElementById('btn-actual').classList.remove('active');
+    };
+    document.getElementById('btn-actual').onclick = () => {
+      era = "actual";
+      document.getElementById('btn-actual').classList.add('active');
+      document.getElementById('btn-años20').classList.remove('active');
+    };
+
+    document.getElementById('btn-generar').onclick = () => {
+      const nombre = document.getElementById('nombre').value.trim() || "Investigador";
+      let ocupNombre = selectOcup.value;
+      if (!ocupNombre) {
+        const keys = Object.keys(OCUPACIONES);
+        ocupNombre = keys[Math.floor(Math.random() * keys.length)];
+      }
+      const ocup = OCUPACIONES[ocupNombre];
+
+      const c = generarCaracteristicas();
+      const derivados = generarDerivados(c);
+      const puntosOcup = ocup.p(c);
+      const puntosInteres = c.INT * 2;
+      const credito = ocup.cr[0] + Math.floor(Math.random() * (ocup.cr[1] - ocup.cr[0] + 1));
+      const dineroInfo = calcularDinero(credito, era);
+
+      document.getElementById('r-nombre').textContent = nombre;
+      document.getElementById('r-ocupacion').textContent = ocupNombre + " · " + (era === "años20" ? "Años 20" : "Actual");
+
+      const statsDiv = document.getElementById('r-stats');
+      statsDiv.innerHTML = "";
+      Object.entries(c).forEach(([k, v]) => {
+        statsDiv.innerHTML += `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+      });
+
+      const derivDiv = document.getElementById('r-derivados');
+      derivDiv.innerHTML = "";
+      Object.entries(derivados).forEach(([k, v]) => {
+        derivDiv.innerHTML += `<div class="derived-row"><span>${k}</span><span class="v">${v}</span></div>`;
+      });
+
+      const habUl = document.getElementById('r-hab-ocup');
+      habUl.innerHTML = "";
+      ocup.h.forEach(h => { habUl.innerHTML += `<li>${h}</li>`; });
+      document.getElementById('r-formula-ocup').textContent = ocup.f;
+      document.getElementById('r-puntos-ocup').textContent = puntosOcup + " pts";
+
+      document.getElementById('r-puntos-interes').textContent = puntosInteres + " pts";
+
+      document.getElementById('r-clase').textContent = dineroInfo.clase;
+      document.getElementById('r-credito').textContent = "Crédito: " + credito;
+      document.getElementById('r-dinero').textContent = dineroInfo.dinero + " $";
+      document.getElementById('r-bienes').textContent = dineroInfo.bienes;
+      document.getElementById('r-gasto').textContent = dineroInfo.gasto + " $/día";
+
+      const resultado = document.getElementById('resultado');
+      resultado.classList.add('show');
+      resultado.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+  </script>
+</body>
+
+</html>
