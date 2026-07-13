@@ -3,10 +3,10 @@
 Generador rápido de personajes para el juego de rol *La Llamada de Cthulhu*
 (7ª edición). Incluye dos versiones que hacen exactamente lo mismo:
 
-- **`generador_personaje_cthulhu.html`** — versión web. Se abre directo en
+- **`Cdp.html`** — versión web. Se abre directo en
   el navegador de cualquier dispositivo (celular, tablet o PC), sin instalar
   nada.
-- **`generador_personaje_cthulhu.py`** — versión de consola en Python.
+- **`Cdp.py`** — versión de consola en Python.
 
 ## ⚠️ Qué NO calcula este generador
 
@@ -33,12 +33,12 @@ el manual.
 ## Uso
 
 ### Versión web
-Abre `generador_personaje_cthulhu.html` en cualquier navegador (o publícalo
+Abre `Cdp.html` en cualquier navegador (o publícalo
 con GitHub Pages, ver más abajo).
 
 ### Versión Python
 ```bash
-python3 generador_personaje_cthulhu.py
+python3 Cdp.py
 ```
 
 ## Publicar la versión web con GitHub Pages (opcional)
@@ -48,7 +48,7 @@ Si quieres un link para compartir sin tener que enviar el archivo:
 1. Ve a la configuración del repositorio → **Pages**.
 2. En "Source", elige la rama `main` y la carpeta `/ (root)`.
 3. Guarda. GitHub te dará una URL tipo
-   `https://tu-usuario.github.io/tu-repo/generador_personaje_cthulhu.html`.
+   `https://tu-usuario.github.io/tu-repo/Cdp.html`.
 
 ## Créditos
 
